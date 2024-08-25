@@ -1,0 +1,188 @@
+import java.util.ArrayList;
+import java.util.List;
+
+// Film sınıfı
+class Film {
+    private String ad;
+    private double fiyat;
+    private boolean mevcut;
+
+    // Constructor
+    public Film(String ad, double fiyat, boolean mevcut) {
+        this.ad = ad;
+        this.fiyat = fiyat;
+        this.mevcut = mevcut;
+    }
+
+    // Getter ve Setter metodları
+    public String getAd() {
+        return ad;
+    }
+
+    public void setAd(String ad) {
+        this.ad = ad;
+    }
+
+    public double getFiyat() {
+        return fiyat;
+    }
+
+    public void setFiyat(double fiyat) {
+        this.fiyat = fiyat;
+    }
+
+    public boolean isMevcut() {
+        return mevcut;
+    }
+
+    public void setMevcut(boolean mevcut) {
+        this.mevcut = mevcut;
+    }
+}
+
+// Kullanıcı sınıfı
+class Kullanici {
+    private String isim;
+    private double kredi;
+    private List<Film> satinAlinanFilmler;
+
+    // Constructor
+    public Kullanici(String isim) {
+        this.isim = isim;
+        this.kredi = 0.0;
+        this.satinAlinanFilmler = new ArrayList<>();
+    }
+
+    // Kredi satın al
+    public void krediSatinAl(double miktar) {
+        this.kredi += miktar;
+    }
+
+    // Film satın al
+    public void filmSatinAl(Film film) {
+        if (film.isMevcut()) {
+            if (this.kredi >= film.getFiyat()) {
+                this.kredi -= film.getFiyat();
+                this.satinAlinanFilmler.add(film);
+                System.out.println(film.getAd() + " başarıyla satın alındı.");
+            } else {
+                System.out.println("Yeterli krediniz yok!");
+            }
+        } else {
+            System.out.println(film.getAd() + " mevcut değil. Talep edebilirsiniz.");
+        }
+    }
+
+    // Getter ve Setter metodları
+    public String getIsim() {
+        return isim;
+    }
+
+    public void setIsim(String isim) {
+        this.isim = isim;
+    }
+
+    public double getKredi() {
+        return kredi;
+    }
+
+    public List<Film> getSatinAlinanFilmler() {
+        return satinAlinanFilmler;
+    }
+}
+
+// Abone sınıfı (Kullanıcı sınıfını genişletir)
+class Abone extends Kullanici {
+    private List<Film> kiralananFilmler;
+
+    // Constructor
+    public Abone(String isim) {
+        super(isim);
+        this.kiralananFilmler = new ArrayList<>();
+    }
+
+    // Film kirala
+    public void filmKirala(Film film) {
+        if (film.isMevcut()) {
+            if (getKredi() >= film.getFiyat()) {
+                krediSatinAl(-film.getFiyat());
+                kiralananFilmler.add(film);
+                System.out.println(film.getAd() + " başarıyla kiralandı.");
+            } else {
+                System.out.println("Yeterli krediniz yok!");
+            }
+        } else {
+            System.out.println(film.getAd() + " mevcut değil. Talep edebilirsiniz.");
+        }
+    }
+
+    // Kiralanan filmleri göster
+    public List<Film> getKiralananFilmler() {
+        return kiralananFilmler;
+    }
+}
+
+// Film kiralama ve satın alma işlemlerini yöneten sistem sınıfı
+class FilmSistemi {
+    private List<Film> filmler;
+    private List<Kullanici> kullanicilar;
+
+    // Constructor
+    public FilmSistemi() {
+        filmler = new ArrayList<>();
+        kullanicilar = new ArrayList<>();
+    }
+
+    // Film ekle
+    public void filmEkle(Film film) {
+        filmler.add(film);
+    }
+
+    // Kullanıcı ekle
+    public void kullaniciEkle(Kullanici kullanici) {
+        kullanicilar.add(kullanici);
+    }
+
+    // Filmleri listele
+    public void filmleriListele() {
+        for (Film film : filmler) {
+            System.out.println("Film: " + film.getAd() + ", Fiyat: " + film.getFiyat() + ", Mevcut: " + (film.isMevcut() ? "Evet" : "Hayır"));
+        }
+    }
+}
+
+// Ana sınıf
+public class Main {
+    public static void main(String[] args) {
+        // Sistem nesnesi
+        FilmSistemi sistem = new FilmSistemi();
+
+        // Örnek filmler
+        Film film1 = new Film("Inception", 15.0, true);
+        Film film2 = new Film("Interstellar", 12.5, false);
+
+        // Filmleri sisteme ekle
+        sistem.filmEkle(film1);
+        sistem.filmEkle(film2);
+
+        // Örnek kullanıcılar
+        Kullanici kullanici1 = new Kullanici("Ali");
+        Abone abone1 = new Abone("Veli");
+
+        // Kullanıcıları sisteme ekle
+        sistem.kullaniciEkle(kullanici1);
+        sistem.kullaniciEkle(abone1);
+
+        // Kredi satın alma
+        kullanici1.krediSatinAl(20);
+        abone1.krediSatinAl(30);
+
+        // Filmleri listele
+        sistem.filmleriListele();
+
+        // Kullanıcılar film satın alır ve kiralar
+        kullanici1.filmSatinAl(film1); // Ali film satın alıyor
+        abone1.filmKirala(film1);      // Veli film kiralıyor
+        abone1.filmSatinAl(film2);     // Veli, mevcut olmayan filmi satın almaya çalışıyor
+    }
+}
